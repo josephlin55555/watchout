@@ -1,4 +1,8 @@
 // start slingin' some d3 here.
+var randomGenerator = function(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
 var gameOptions = {
   width: 800,
   height: 800,
@@ -21,9 +25,6 @@ var playerOption = {
   className: 'player'
 };
 
-var randomGenerator = function(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-};
 
 var svg = d3.select('body').append('svg');
 
@@ -50,22 +51,28 @@ var generateEnemies = function(n) {
   return enemies;
 };
 
-var generatePlayers = function(n){
-  var players = [];
-  for(var i = 0; i < n; i++) {
-    var player = svg.append('svg:image');
+var generatePlayer = function(){
+  var player = svg.append('svg:image');
 
-    player
-      .attr('xlink:href', 'images/player.gif')
-      .attr('x', playerOption.x)
-      .attr('y', playerOption.y)
-      .attr('width', playerOption.width)
-      .attr('height', playerOption.height)
-      .attr('class',playerOption.className);
+  var drag = d3.behavior.drag() //what happens if there are two players?
+    .on('drag', function(){
+      player
+        .attr('x', d3.event.x)
+        .attr('y',d3.event.y);
+  });
 
-    players.push(player);
-  }
-  return players;
+
+  player
+    .attr('xlink:href', 'images/player.gif')
+    .attr('x', playerOption.x)
+    .attr('y', playerOption.y)
+
+    .attr('width', playerOption.width)
+    .attr('height', playerOption.height)
+    .attr('class',playerOption.className)
+    .call(drag);
+
+  return player;
 };
 
 
@@ -81,7 +88,7 @@ var setRandomPosition = function(enemy) {
 //_.extend(enemy.prototype, ourMethod)
 
 var enemies = generateEnemies(1);
-var players =  generatePlayers(1);
+var player =  generatePlayer();
 
 var moveEnemies = function() {
   enemies.forEach(function(enemy) {
