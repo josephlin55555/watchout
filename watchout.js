@@ -89,7 +89,7 @@ var setRandomPosition = function(enemy) {
 
 //_.extend(enemy.prototype, ourMethod)
 
-var enemies = generateEnemies(30);
+var enemies = generateEnemies(10);
 var player =  generatePlayer();
 
 var moveEnemies = function() {
@@ -104,10 +104,10 @@ moveEnemies();
 
 var collisionDetection = function() {
   var d = 10;
+  var y_player = Number(player.attr('y')) + d;
+  var x_player = Number(player.attr('x')) + d;
 
   for(var i = 0; i < enemies.length; i++) {
-    var y_player = Number(player.attr('y')) + d;
-    var x_player = Number(player.attr('x')) + d;
     var enemy = enemies[i];
     var x_enemy = Number(enemy.attr('x')) + d;
     var y_enemy = Number(enemy.attr('y')) + d;
