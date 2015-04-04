@@ -6,7 +6,9 @@ var randomGenerator = function(min, max) {
 var gameOptions = {
   width: 800,
   height: 800,
-  backgroundColor: 'black'
+  backgroundColor: 'black',
+  currentScore: d3.select('.current').select('span'),
+  highScore: d3.select('.high').select('span')
 };
 
 var enemyOption = {
@@ -87,7 +89,7 @@ var setRandomPosition = function(enemy) {
 
 //_.extend(enemy.prototype, ourMethod)
 
-var enemies = generateEnemies(1);
+var enemies = generateEnemies(30);
 var player =  generatePlayer();
 
 var moveEnemies = function() {
@@ -99,6 +101,54 @@ var moveEnemies = function() {
 };
 
 moveEnemies();
+
+var collisionDetection = function() {
+  var d = 10;
+
+  for(var i = 0; i < enemies.length; i++) {
+    var y_player = Number(player.attr('y')) + d;
+    var x_player = Number(player.attr('x')) + d;
+    var enemy = enemies[i];
+    var x_enemy = Number(enemy.attr('x')) + d;
+    var y_enemy = Number(enemy.attr('y')) + d;
+
+    var x_diff = Math.abs(x_enemy - x_player);
+    var y_diff = Math.abs(y_enemy - y_player);
+    if(x_diff < 30 && y_diff < 30) {
+      return true;
+    }
+  }
+  return false;
+};
+
+var enableCollisionDetection = function() {
+  var currentScoreN = 0;
+  var highScoreN = 0;
+  setInterval(function() {
+    if(collisionDetection()){
+      if(currentScoreN > highScoreN) {
+        highScoreN = currentScoreN;
+        gameOptions.highScore.text(highScoreN);
+      }
+      currentScoreN = 0;
+      gameOptions.currentScore.text(currentScoreN);
+    } else {
+      currentScoreN++;
+      gameOptions.currentScore.text(currentScoreN);
+    }
+  }, 5);
+};
+
+enableCollisionDetection();
+
+
+
+
+
+
+
+
+
 
 
 
