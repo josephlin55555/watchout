@@ -23,7 +23,22 @@ svg
   .attr('height', gameOptions.height)
   .style('background-color', gameOptions.backgroundColor);
 
-var circle = svg.append('circle');
+var generateEnemies = function(n) {
+  var enemies = [];
+  for(var i = 0; i < n; i++) {
+    var circle = svg.append('circle');
+
+    circle
+      .attr('cx', circleOption.cx)
+      .attr('cy',circleOption.cy)
+      .attr('r', circleOption.r)
+      .style('fill', circleOption.fill);
+
+    enemies.push(circle);
+  }
+  return enemies;
+};
+
 var setRandomPosition = function(circle) {
   var cx = randomGenerator(0, 500);
   var cy = randomGenerator(0, 500);
@@ -32,17 +47,22 @@ var setRandomPosition = function(circle) {
     .attr('cy', cy)
     .duration(2000);
 };
+
 //_.extend(circle.prototype, ourMethod)
 
-circle
-  .attr('cx', circleOption.cx)
-  .attr('cy',circleOption.cy)
-  .attr('r', circleOption.r)
-  .style('fill', circleOption.fill);
+var enemies = generateEnemies(1);
 
-setInterval(function(){
-  setRandomPosition(circle);
-}, 2000);
+var moveEnemies = function() {
+  enemies.forEach(function(enemy) {
+    setInterval(function(){
+      setRandomPosition(enemy);
+    }, 2000);
+  });
+};
+
+moveEnemies();
+
+
 
 
 
