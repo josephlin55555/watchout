@@ -108,19 +108,28 @@ var collisionDetection = function() {
     var x_diff = Math.abs(x_enemy - x_player);
     var y_diff = Math.abs(y_enemy - y_player);
     if(x_diff < 30 && y_diff < 30) {
+
       return true;
     }
   }
   return false;
 };
 
+var prevCollision = false;
+
 var enableCollisionDetection = function() {
+  var collision = false;
 
   if(collisionDetection()){
+    collision = true;
     highScore = currentScore > highScore ? currentScore : highScore;
     currentScore = 0;
-    collisions++;
+    if(prevCollision === false) {
+      collisions++;
+    }
   }
+
+  prevCollision = collision;
 };
 
 setInterval(function() {
