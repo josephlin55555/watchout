@@ -6,10 +6,14 @@ var randomGenerator = function(min, max) {
 var gameOptions = {
   width: 800,
   height: 800,
-  backgroundColor: 'black',
-  currentScore: d3.select('.current').select('span'),
-  highScore: d3.select('.high').select('span')
+  duration: 2000,
+  numOfEnemy: 10,
+  backgroundColor: 'black'
 };
+
+var currentScore = 0;
+var highScore = 0;
+var collisions = 0;
 
 var enemyOption = {
   x : 400,
@@ -35,21 +39,19 @@ svg
   .attr('height', gameOptions.height)
   .style('background-color', gameOptions.backgroundColor);
 
-var generateEnemies = function(n) {
-  var enemies = [];
-  for(var i = 0; i < n; i++) {
-    var enemy = svg.append('svg:image');
+var generateEnemies = function() {
 
-    enemy
-      .attr('xlink:href', 'images/cow.gif')
-      .attr('x', enemyOption.x)
-      .attr('y', enemyOption.y)
-      .attr('width', enemyOption.width)
-      .attr('height', enemyOption.height)
-      .attr('class',enemyOption.className);
+  var enemies = svg.selectAll(enemyOption.className)
+    .data(d3.range(0, gameOptions.numOfEnemy))
+    .enter()
+    .append('svg:image')
+    .attr('xlink:href', 'images/cow.gif')
+    .attr('x', enemyOption.x)
+    .attr('y', enemyOption.y)
+    .attr('width', enemyOption.width)
+    .attr('height', enemyOption.height)
+    .attr('class',enemyOption.className);
 
-    enemies.push(enemy);
-  }
   return enemies;
 };
 
@@ -77,38 +79,29 @@ var generatePlayer = function(){
   return player;
 };
 
-
-var setRandomPosition = function(enemy) {
-  var x = randomGenerator(0, gameOptions.width);
-  var y = randomGenerator(0, gameOptions.height);
-  enemy.transition()
-    .attr('x', x)
-    .attr('y', y)
-    .duration(2000);
-};
-
-//_.extend(enemy.prototype, ourMethod)
-
-var enemies = generateEnemies(10);
+var enemies = generateEnemies();
 var player =  generatePlayer();
 
-var moveEnemies = function() {
-  enemies.forEach(function(enemy) {
-    setInterval(function(){
-      setRandomPosition(enemy);
-    }, 2000);
-  });
+var moveEnemies = function(enemy) {
+
+  enemy.transition()
+    .attr('x', randomGenerator(0, gameOptions.width))
+    .attr('y', randomGenerator(0, gameOptions.width))
+    .duration(gameOptions.duration)
+    .each('end', function() {
+      moveEnemies(d3.select(this));
+    });
 };
 
-moveEnemies();
+moveEnemies(enemies);
 
 var collisionDetection = function() {
   var d = 10;
   var y_player = Number(player.attr('y')) + d;
   var x_player = Number(player.attr('x')) + d;
 
-  for(var i = 0; i < enemies.length; i++) {
-    var enemy = enemies[i];
+  for(var i = 0; i < enemies[0].length; i++) {
+    var enemy = d3.select(enemies[0][i]);
     var x_enemy = Number(enemy.attr('x')) + d;
     var y_enemy = Number(enemy.attr('y')) + d;
 
@@ -122,24 +115,22 @@ var collisionDetection = function() {
 };
 
 var enableCollisionDetection = function() {
-  var currentScoreN = 0;
-  var highScoreN = 0;
-  setInterval(function() {
-    if(collisionDetection()){
-      if(currentScoreN > highScoreN) {
-        highScoreN = currentScoreN;
-        gameOptions.highScore.text(highScoreN);
-      }
-      currentScoreN = 0;
-      gameOptions.currentScore.text(currentScoreN);
-    } else {
-      currentScoreN++;
-      gameOptions.currentScore.text(currentScoreN);
-    }
-  }, 5);
+
+  if(collisionDetection()){
+    highScore = currentScore > highScore ? currentScore : highScore;
+    currentScore = 0;
+    collisions++;
+  }
 };
 
-enableCollisionDetection();
+setInterval(function() {
+  currentScore++;
+  d3.select('.current span').text(currentScore);
+  d3.select('.high span').text(highScore);
+  d3.select('.collisions span').text(collisions);
+}, 100);
+
+d3.timer(enableCollisionDetection);
 
 
 
